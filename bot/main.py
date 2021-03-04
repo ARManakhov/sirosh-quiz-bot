@@ -8,7 +8,15 @@ bot = telebot.TeleBot(telegram_token)
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
-    bot.reply_to(message, f'Я бот. Приятно познакомиться, {message.from_user.first_name}')
+    bot.reply_to(message, 'Бот для создания простых тестов.\nДля создания нового теста напишите команду /new, '
+                          'или отправьте ссылку на google таблцу ( пример )\n'
+                          'Информация оботе /about')
+
+
+@bot.message_handler(commands=['about'])
+def send_welcome(message):
+    bot.reply_to(message, 'Бот создан пользователем @green_tea_party.\nИсходный код распространяется по лицензии '
+                          'GPLv3.\n Репозиторий: https://github.com/ARManakhov/sirosh-quiz-bot')
 
 
 @bot.message_handler(content_types=['text'])

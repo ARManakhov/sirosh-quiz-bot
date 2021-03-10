@@ -16,9 +16,17 @@ def make_test_from_spreadsheet(url: str, user_id: str):
             options.append(Option(text=list(col['userEnteredValue'].values())[0],
                                   correct=col['effectiveFormat']['backgroundColor'] != default_background))
         questions.append(Question(text=row[0]['userEnteredValue']['stringValue'], options=options))
-    test = Test(author=get_or_create_user(user_id), questions=questions)
+
+    sheet = create_new_spreadsheet()
+    test = Test(author=get_or_create_user(user_id), questions=questions, spreadsheet_id=sheet['spreadsheetId'])
     save_test(test=test)
     return test
+
+
+def create_new_spreadsheet():
+    sheet = create_spreadsheet(sheet_service)
+    share_spreadsheet(drive_service, sheet)
+    return sheet
 
 
 def start_test_if_exist(test_id, user_id):
@@ -81,6 +89,11 @@ def try_save_text_answer(user_id, text):
 def save_user_to_test(user_id):
     user = get_or_create_user(user_id)
     test = get_test_by_id(user.session.test.id)
+    update_test_report(user.session.test.id)
     user.resolved_tests.append(test)
     user.session = None
     create_or_update_user(user)
+
+
+def update_test_report(test_id):
+    update_test_report_spreadsheet(sheet_service, get_test_by_id(test_id))

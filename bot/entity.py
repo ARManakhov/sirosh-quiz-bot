@@ -15,6 +15,7 @@ user_test = Table(
 class Test(Base):
     __tablename__ = "test"
     id = Column(Integer, primary_key=True)
+    spreadsheet_id = Column(String)
     author_id = Column(String, ForeignKey("user_t.telegram_id"))
     author = relationship("User", back_populates="tests", foreign_keys=[author_id])
     users = relationship("User", secondary=user_test, back_populates="resolved_tests", uselist=True)

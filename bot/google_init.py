@@ -7,6 +7,8 @@ from google_auth_oauthlib.flow import InstalledAppFlow, Flow
 from google.auth.transport.requests import Request
 import pickle
 import os
+from db_operations import get_or_create_user
+from entity import Answer
 
 
 def get_google_creds(google_credentials, scopes):
@@ -57,9 +59,50 @@ def get_spreadsheet_id_from_url(url: str):  # todo add link validation
 
 
 def get_values_from_spreadsheet(sheet_service, spreadsheet_id: str):
-    return sheet_service.spreadsheets()\
-        .get(spreadsheetId=spreadsheet_id, ranges=["A1:F100"], includeGridData=True)\
+    return sheet_service.spreadsheets() \
+        .get(spreadsheetId=spreadsheet_id, ranges=["A1:F100"], includeGridData=True) \
         .execute()
+
+
+def update_spreadsheet_raw_values(sheet_service, value, spreadsheetId):
+    body = {
+        'values': value
+    }
+    result = sheet_service.spreadsheets().values().update(spreadsheetId=spreadsheetId, range="A1:Z100",
+                                                          valueInputOption="RAW", body=body).execute()
+
+
+def update_report_spreadsheet_values(sheet_service, value, spreadsheetId):
+    raw_values = []
+    for i in value:
+        raw_i = []
+        for j in i:
+            if isinstance(j, Answer):
+                if j.option is None:
+                    raw_i.append(j.text)
+                else:
+                    raw_i.append(j.option.text)
+            else:
+                raw_i.append(j)
+        raw_values.append(raw_i)
+    update_spreadsheet_raw_values(sheet_service, raw_values, spreadsheetId)
+
+
+def update_test_report_spreadsheet(sheet_service, test):
+    user_answers = dict()
+    for q in test.questions:
+        for a in q.answers:
+            if a.user_id not in user_answers:
+                user = get_or_create_user(a.user_id)
+                user_answers[a.user_id] = [user.telegram_id]
+            user_answers[a.user_id].append(a)
+
+    values = []
+    for k in user_answers.keys():
+        values.append(user_answers[k])
+
+    update_report_spreadsheet_values(sheet_service, values, test.spreadsheet_id)
+
 
 creds = get_google_creds(json.loads(os.environ['GOOGLE_CREDENTIALS']),
                          ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive'])

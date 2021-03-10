@@ -91,7 +91,8 @@ def get_text_messages(message):
             bot.send_message(message.from_user.id, 'данный вопрос с вариантами ответа, пожалуйста выберете вариант')
     else:
         test = make_test_from_spreadsheet(message.text, message.from_user.id)
-        response_text = 'тест содан и доступен по ссылке http://t.me/' + bot_username + '?start=' + str(test.id)
+        response_text = 'тест содан и доступен по ссылке http://t.me/' + bot_username + '?start=' + str(test.id) + \
+                        ' репорт будет доступен по ссылке https://docs.google.com/spreadsheets/d/' + test.spreadsheet_id
         bot.send_message(message.from_user.id, response_text)
 
 

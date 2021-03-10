@@ -94,7 +94,7 @@ def update_test_report_spreadsheet(sheet_service, test):
         for a in q.answers:
             if a.user_id not in user_answers:
                 user = get_or_create_user(a.user_id)
-                user_answers[a.user_id] = [user.telegram_id]
+                user_answers[a.user_id] = [user.username, user.fullname]
             user_answers[a.user_id].append(a)
 
     values = []

@@ -18,6 +18,16 @@ def get_or_create_user(telegram_id):
         return user
 
 
+def update_username(telegram_id, username, fullname):
+    user = get_or_create_user(telegram_id)
+    user.username = username
+    user.fullname = fullname
+    session = get_session()
+    session.add(user)
+    session.commit()
+    return user
+
+
 def save_test(test: Test):
     session = get_session()
     session.add(test)

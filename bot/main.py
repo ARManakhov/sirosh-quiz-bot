@@ -15,6 +15,10 @@ bot_username = bot.get_me().username
 def send_start(message):
     text = message.text
     args = text.split()[1:]
+    fullname = message.from_user.first_name
+    if message.from_user.last_name is not None:
+        fullname += ' ' + message.from_user.last_name
+    update_username(message.from_user.id, message.from_user.username, fullname)
     if len(args) > 0:
         try:
             first_question = start_test_if_exist(test_id=args[0], user_id=message.from_user.id)

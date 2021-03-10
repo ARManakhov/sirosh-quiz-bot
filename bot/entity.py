@@ -27,6 +27,8 @@ class User(Base):
     __tablename__ = "user_t"
     id = Column(Integer, primary_key=True)
     telegram_id = Column(String, nullable=False, unique=True, index=True)
+    username = Column(String)
+    fullname = Column(String)
     resolved_tests = relationship("Test", secondary=user_test, back_populates="users")
     tests = relationship("Test", back_populates="author")
     answers = relationship("Answer", back_populates="user")

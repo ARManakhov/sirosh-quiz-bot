@@ -49,6 +49,7 @@ class Question(Base):
     test_id = Column(Integer, ForeignKey("test.id"))
     test = relationship("Test", back_populates="questions")
     options = relationship("Option", back_populates="question", uselist=True)
+    answers = relationship("Answer", back_populates="question", uselist=True)
 
 
 class Option(Base):
@@ -62,8 +63,11 @@ class Option(Base):
 
 class Answer(Base):
     __tablename__ = "answer"
+    text = Column(String)
     id = Column(Integer, primary_key=True)
     user_id = Column(String, ForeignKey("user_t.telegram_id"))
     user = relationship("User", back_populates="answers", uselist=False)
     option_id = Column(Integer, ForeignKey("option.id"))
     option = relationship("Option", back_populates="answers", uselist=False)
+    question_id = Column(Integer, ForeignKey("question.id"))
+    question = relationship("Question", back_populates="answers")

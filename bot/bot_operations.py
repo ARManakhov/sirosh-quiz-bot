@@ -12,8 +12,9 @@ def make_test_from_spreadsheet(url: str, user_id: str):
         for col in row[1:]:
             options.append(Option(text=col))
         questions.append(Question(text=row[0], options=options))
-
-    save_test(test=Test(author=get_or_create_user(user_id), questions=questions))
+    test = Test(author=get_or_create_user(user_id), questions=questions)
+    save_test(test=test)
+    return test
 
 
 def start_test_if_exist(test_id, user_id):
@@ -35,7 +36,39 @@ def get_next_question_if_exists(user_id):
         return None
 
 
+def get_current_question(user_id):
+    user = get_or_create_user(user_id)
+    test = get_test_by_id(user.session.test.id)
+    try:
+        return test.questions[user.session.question_num]
+    except IndexError:
+        return None
+
+
 def save_answer(user_id, option_id):
     user = get_or_create_user(user_id)
     option = get_option(option_id)
-    save_answer_to_db(Answer(user=user, option=option))
+    save_answer_to_db(Answer(user=user, option=option, question=option.question))
+
+
+def clean_session(user_id):
+    user = get_or_create_user(user_id)
+    user.session = None
+    create_or_update_user(user)
+
+
+def user_has_session(user_id):
+    user = get_or_create_user(user_id)
+    return user.session is not None
+
+
+def try_save_text_answer(user_id, text):
+    user = get_or_create_user(user_id)
+    question = get_current_question(user_id)
+    if question is None:
+        clean_session(user_id=user_id)
+    else:
+        if len(question.options) == 0:
+            save_answer_to_db(Answer(user=user, question=question, text=text))
+            return True
+    return False

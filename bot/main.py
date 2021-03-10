@@ -44,6 +44,7 @@ def process_callback_about(callback_query: types.CallbackQuery):
         save_answer(user_id=callback_query.from_user.id, option_id=option_id)
         next_question = get_next_question_if_exists(user_id=callback_query.from_user.id)
         if next_question is None:
+            clean_session(callback_query.from_user.id)
             bot.send_message(callback_query.from_user.id, 'тест завершен')
         else:
             bot.send_message(callback_query.from_user.id, next_question.text,
@@ -77,10 +78,21 @@ def send_about(message):
 
 @bot.message_handler(content_types=['text'])
 def get_text_messages(message):
-    if message.text.lower() == 'привет':
-        bot.send_message(message.from_user.id, 'Привет!')
+    if user_has_session(message.from_user.id):
+        if try_save_text_answer(user_id=message.from_user.id, text=message.text):
+            next_question = get_next_question_if_exists(user_id=message.from_user.id)
+            if next_question is None:
+                clean_session(message.from_user.id)
+                bot.send_message(message.from_user.id, 'тест завершен')
+            else:
+                bot.send_message(message.from_user.id, next_question.text,
+                                 reply_markup=get_options_keyboard(next_question))
+        else:
+            bot.send_message(message.from_user.id, 'данный вопрос с вариантами ответа, пожалуйста выберете вариант')
     else:
-        bot.send_message(message.from_user.id, make_test_from_spreadsheet(message.text, message.from_user.id))
+        test = make_test_from_spreadsheet(message.text, message.from_user.id)
+        response_text = 'тест содан и доступен по ссылке http://t.me/' + bot_username + '?start=' + str(test.id)
+        bot.send_message(message.from_user.id, response_text)
 
 
 bot.polling(none_stop=True)

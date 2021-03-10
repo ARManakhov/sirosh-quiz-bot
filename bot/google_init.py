@@ -57,10 +57,9 @@ def get_spreadsheet_id_from_url(url: str):  # todo add link validation
 
 
 def get_values_from_spreadsheet(sheet_service, spreadsheet_id: str):
-    result_input = sheet_service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range="A1:F100").execute()
-    values_input = result_input.get('values', [])
-    return values_input
-
+    return sheet_service.spreadsheets()\
+        .get(spreadsheetId=spreadsheet_id, ranges=["A1:F100"], includeGridData=True)\
+        .execute()
 
 creds = get_google_creds(json.loads(os.environ['GOOGLE_CREDENTIALS']),
                          ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive'])

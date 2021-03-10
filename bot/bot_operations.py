@@ -6,12 +6,16 @@ from entity import Question, Option, Test
 
 def make_test_from_spreadsheet(url: str, user_id: str):
     values = get_values_from_spreadsheet(sheet_service, get_spreadsheet_id_from_url(url))
+    default_background = values['properties']['defaultFormat']['backgroundColor']
+    real_data = values['sheets'][0]['data'][0]['rowData']
     questions = []
-    for row in values:
+    for row_data in real_data:
+        row = row_data['values']
         options = []
         for col in row[1:]:
-            options.append(Option(text=col))
-        questions.append(Question(text=row[0], options=options))
+            options.append(Option(text=list(col['userEnteredValue'].values())[0],
+                                  correct=col['effectiveFormat']['backgroundColor'] != default_background))
+        questions.append(Question(text=row[0]['userEnteredValue']['stringValue'], options=options))
     test = Test(author=get_or_create_user(user_id), questions=questions)
     save_test(test=test)
     return test
@@ -72,3 +76,11 @@ def try_save_text_answer(user_id, text):
             save_answer_to_db(Answer(user=user, question=question, text=text))
             return True
     return False
+
+
+def save_user_to_test(user_id):
+    user = get_or_create_user(user_id)
+    test = get_test_by_id(user.session.test.id)
+    user.resolved_tests.append(test)
+    user.session = None
+    create_or_update_user(user)

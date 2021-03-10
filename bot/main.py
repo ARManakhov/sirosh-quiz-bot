@@ -44,7 +44,7 @@ def process_callback_about(callback_query: types.CallbackQuery):
         save_answer(user_id=callback_query.from_user.id, option_id=option_id)
         next_question = get_next_question_if_exists(user_id=callback_query.from_user.id)
         if next_question is None:
-            clean_session(callback_query.from_user.id)
+            save_user_to_test(callback_query.from_user.id)
             bot.send_message(callback_query.from_user.id, 'тест завершен')
         else:
             bot.send_message(callback_query.from_user.id, next_question.text,
@@ -83,7 +83,7 @@ def get_text_messages(message):
             next_question = get_next_question_if_exists(user_id=message.from_user.id)
             if next_question is None:
                 clean_session(message.from_user.id)
-                bot.send_message(message.from_user.id, 'тест завершен')
+                save_user_to_test(message.from_user.id)
             else:
                 bot.send_message(message.from_user.id, next_question.text,
                                  reply_markup=get_options_keyboard(next_question))

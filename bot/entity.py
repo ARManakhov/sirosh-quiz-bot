@@ -55,6 +55,7 @@ class Question(Base):
 class Option(Base):
     __tablename__ = "option"
     text = Column(String)
+    correct = Column(Boolean)
     id = Column(Integer, primary_key=True)
     question_id = Column(Integer, ForeignKey("question.id"))
     question = relationship("Question", back_populates="options")

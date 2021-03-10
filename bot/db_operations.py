@@ -27,8 +27,18 @@ def save_test(test: Test):
 def get_test_by_id(id):
     return get_session().query(Test).filter(Test.id == int(id)).one()
 
+
 def create_or_update_user(user):
     session = get_session()
     session.add(user)
     session.commit()
 
+
+def get_option(id):
+    return get_session().query(Option).filter(Option.id == int(id)).one()
+
+
+def save_answer_to_db(answer):
+    session = get_session()
+    session.add(answer)
+    session.commit()

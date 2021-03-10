@@ -22,3 +22,20 @@ def start_test_if_exist(test_id, user_id):
     user.session = Session(test=test, question_num=0)
     create_or_update_user(user)
     return test.questions[0]
+
+
+def get_next_question_if_exists(user_id):
+    user = get_or_create_user(user_id)
+    test = get_test_by_id(user.session.test.id)
+    user.session.question_num += 1
+    create_or_update_user(user)
+    try:
+        return test.questions[user.session.question_num]
+    except IndexError:
+        return None
+
+
+def save_answer(user_id, option_id):
+    user = get_or_create_user(user_id)
+    option = get_option(option_id)
+    save_answer_to_db(Answer(user=user, option=option))

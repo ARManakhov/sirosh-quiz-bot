@@ -35,6 +35,21 @@ def process_callback_about(callback_query: types.CallbackQuery):
                                                   '( пример )\n Информация оботе /about')
 
 
+@bot.callback_query_handler(func=lambda c: c.data.startswith('option'))
+def process_callback_about(callback_query: types.CallbackQuery):
+    args = callback_query.data.split()[1:]
+    if len(args) > 0:
+        option_id = args[0]
+        bot.answer_callback_query(callback_query.id)
+        save_answer(user_id=callback_query.from_user.id, option_id=option_id)
+        next_question = get_next_question_if_exists(user_id=callback_query.from_user.id)
+        if next_question is None:
+            bot.send_message(callback_query.from_user.id, 'тест завершен')
+        else:
+            bot.send_message(callback_query.from_user.id, next_question.text,
+                             reply_markup=get_options_keyboard(next_question))
+
+
 @bot.callback_query_handler(func=lambda c: c.data == 'new')
 def process_callback_new(callback_query: types.CallbackQuery):
     bot.answer_callback_query(callback_query.id)

@@ -13,5 +13,5 @@ def get_command_keyboard():
 def get_options_keyboard(question):
     keyboard = types.InlineKeyboardMarkup()
     for o in question.options:
-        keyboard.add(types.InlineKeyboardButton(o.text, callback_data=("option" + str(o.id))))
+        keyboard.add(types.InlineKeyboardButton(o.text, callback_data=("option " + str(o.id))))
     return keyboard

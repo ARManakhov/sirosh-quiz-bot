@@ -1,0 +1,34 @@
+from db_init import get_session
+from entity import *
+from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
+
+
+def get_or_create_user(telegram_id):
+    telegram_id = str(telegram_id)
+    rows = get_session().query(User).filter(User.telegram_id == telegram_id).all()
+
+    if len(rows) == 0:
+        user = User(telegram_id=telegram_id)
+        session = get_session()
+        session.add(user)
+        session.commit()
+        return user
+    else:
+        user = rows[0]
+        return user
+
+
+def save_test(test: Test):
+    session = get_session()
+    session.add(test)
+    session.commit()
+
+
+def get_test_by_id(id):
+    return get_session().query(Test).filter(Test.id == int(id)).one()
+
+def create_or_update_user(user):
+    session = get_session()
+    session.add(user)
+    session.commit()
+

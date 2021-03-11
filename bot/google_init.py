@@ -3,7 +3,7 @@ from urllib.parse import unquote, urlparse
 from pathlib import PurePosixPath
 import json
 from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow, Flow
+from google.oauth2 import service_account
 from google.auth.transport.requests import Request
 import pickle
 import os
@@ -20,8 +20,8 @@ def get_google_creds(google_credentials, scopes):
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_config(google_credentials, scopes)
-            creds = flow.run_local_server(port=0)
+            flow = service_account.Credentials.from_service_account_info(google_credentials)
+            creds = flow.with_scopes(scopes)
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
     return creds
